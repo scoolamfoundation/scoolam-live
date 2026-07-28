@@ -122,6 +122,7 @@ export default function RootLayout() {
             <Stack.Screen name="privacy-policy" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="terms-of-service" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="help" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="notifications" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="invite-friends" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="subscription-status" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="certificate-view" options={{ animation: 'slide_from_right' }} />

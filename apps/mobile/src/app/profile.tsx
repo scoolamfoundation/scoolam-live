@@ -1,27 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Alert,
-  Modal,
   TextInput,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  LogOut,
-  ChevronRight,
-  ChevronLeft,
-  Bell,
-  Shield,
-  Book,
-  Pencil,
-  X,
-  Check,
-  Trash2,
-} from 'lucide-react-native';
+import { ChevronLeft, Check, Trash2 } from 'lucide-react-native';
 import { useUser } from '@/utils/auth/useUser';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/utils/auth/useAuth';
@@ -91,18 +80,30 @@ interface ProfileData {
   favourite_subjects: string[];
 }
 
+const inputStyle = {
+  borderWidth: 1.5 as const,
+  borderColor: '#E5E7EB',
+  borderRadius: 12,
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  fontSize: 15,
+  color: '#111827',
+  backgroundColor: '#F9FAFB',
+  marginBottom: 16,
+};
+
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useUser();
   const router = useRouter();
   const { signOut, signIn } = useAuth();
 
-  const [editVisible, setEditVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const saveAnim = useRef(new Animated.Value(1)).current;
 
-  const [localProfile, setLocalProfile] = useState<ProfileData>({
+  const [form, setForm] = useState<ProfileData>({
     name: '',
     email: '',
     phone: '',
@@ -110,24 +111,22 @@ export default function ProfileScreen() {
     country: '',
     favourite_subjects: [],
   });
-  const [editForm, setEditForm] = useState<ProfileData>(localProfile);
 
   const loadProfile = useCallback(async () => {
     try {
       const res = await fetch('/api/profile');
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
-      const p: ProfileData = {
+      setForm({
         name: data.user.name ?? '',
         email: data.user.email ?? '',
         phone: data.user.phone ?? '',
         state: data.user.state ?? '',
         country: data.user.country ?? '',
         favourite_subjects: data.user.favourite_subjects ?? [],
-      };
-      setLocalProfile(p);
+      });
     } catch {
-      setLocalProfile({
+      setForm({
         name: user?.name ?? '',
         email: user?.email ?? '',
         phone: '',
@@ -144,18 +143,13 @@ export default function ProfileScreen() {
     void loadProfile();
   }, [loadProfile]);
 
-  const openEdit = () => {
-    setEditForm({ ...localProfile });
-    setEditVisible(true);
-  };
-
   const onStateChange = (val: string) => {
-    const country = STATE_COUNTRY_MAP[val] ?? editForm.country;
-    setEditForm((f) => ({ ...f, state: val, country }));
+    const country = STATE_COUNTRY_MAP[val] ?? form.country;
+    setForm((f) => ({ ...f, state: val, country }));
   };
 
   const toggleSubject = (sub: string) => {
-    setEditForm((f) => ({
+    setForm((f) => ({
       ...f,
       favourite_subjects: f.favourite_subjects.includes(sub)
         ? f.favourite_subjects.filter((s) => s !== sub)
@@ -164,30 +158,31 @@ export default function ProfileScreen() {
   };
 
   const saveProfile = async () => {
-    if (!editForm.name.trim()) {
+    if (!form.name.trim()) {
       Alert.alert('Validation', 'Name cannot be empty.');
       return;
     }
     setSaving(true);
+    Animated.sequence([
+      Animated.timing(saveAnim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
+      Animated.timing(saveAnim, { toValue: 1, duration: 80, useNativeDriver: true }),
+    ]).start();
     try {
       const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: editForm.name.trim(),
-          phone: editForm.phone.trim(),
-          state: editForm.state.trim(),
-          country: editForm.country.trim(),
-          favourite_subjects: editForm.favourite_subjects,
+          name: form.name.trim(),
+          phone: form.phone.trim(),
+          state: form.state.trim(),
+          country: form.country.trim(),
+          favourite_subjects: form.favourite_subjects,
         }),
       });
       if (!res.ok) throw new Error('Failed');
-      setLocalProfile({ ...editForm, name: editForm.name.trim() });
-      setEditVisible(false);
-      // small delay so the modal finishes closing before the alert pops up
-      setTimeout(() => {
-        Alert.alert('Profile Updated', 'Your profile has been saved successfully! ✅');
-      }, 400);
+      Alert.alert('Saved! ✅', 'Your profile has been updated.', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch {
       Alert.alert('Error', 'Could not save profile. Please try again.');
     } finally {
@@ -196,501 +191,286 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert('Delete Account', 'Your account will be deactivated. Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Deactivate',
-        style: 'destructive',
-        onPress: async () => {
-          setDeleting(true);
-          try {
-            await fetch('/api/profile', { method: 'DELETE' });
-            await signOut();
-            router.replace('/');
-          } catch {
-            Alert.alert('Error', 'Could not delete account.');
-          } finally {
-            setDeleting(false);
-          }
+    Alert.alert(
+      'Deactivate Account',
+      'Your account will be deactivated. Your data is kept but you will lose access. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Deactivate',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await fetch('/api/profile', { method: 'DELETE' });
+              signOut();
+              router.replace('/');
+              setTimeout(() => signIn(), 400);
+            } catch {
+              Alert.alert('Error', 'Could not deactivate account.');
+            } finally {
+              setDeleting(false);
+            }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
-  const handleSignOut = () => {
-    signOut();
-    router.replace('/');
-    setTimeout(() => {
-      signIn();
-    }, 400);
-  };
-
-  const displayName = localProfile.name || user?.name || '';
-  const initials = displayName
-    ? displayName
+  const initials = form.name
+    ? form.name
         .split(' ')
-        .map((w: string) => w[0])
+        .map((w) => w[0])
         .slice(0, 2)
         .join('')
         .toUpperCase()
-    : '?';
-
-  const menuItems = [
-    {
-      icon: Bell,
-      label: 'Notifications',
-      onPress: () => Alert.alert('Coming Soon', 'Notification preferences coming soon.'),
-    },
-    {
-      icon: Shield,
-      label: 'Privacy Policy',
-      onPress: () => router.push('/privacy-policy' as any),
-    },
-    {
-      icon: Book,
-      label: 'Terms of Service',
-      onPress: () => router.push('/terms-of-service' as any),
-    },
-  ];
+    : ((user?.name ?? '?')[0]?.toUpperCase() ?? '?');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFB', paddingTop: insets.top }}>
-      {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-          paddingVertical: 14,
-          backgroundColor: '#fff',
-          borderBottomWidth: 1,
-          borderColor: '#F3F4F6',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 19,
-            backgroundColor: '#F3F4F6',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 12,
-          }}
-        >
-          <ChevronLeft size={20} color="#374151" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827' }}>My Profile</Text>
-          <Text style={{ fontSize: 13, color: '#9CA3AF', marginTop: 1 }}>
-            Manage your account settings
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={openEdit}
-          style={{
-            backgroundColor: '#E8F5F0',
-            paddingHorizontal: 14,
-            paddingVertical: 8,
-            borderRadius: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <Pencil size={13} color="#0D4C3E" />
-          <Text style={{ fontWeight: '700', color: '#0D4C3E', fontSize: 13 }}>Edit</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
-        {/* Avatar + info */}
+    <KeyboardAvoidingAnimatedView style={{ flex: 1 }} behavior="padding">
+      <View style={{ flex: 1, backgroundColor: '#F9FAFB', paddingTop: insets.top }}>
+        {/* Header */}
         <View
           style={{
-            paddingHorizontal: 28,
-            paddingTop: 28,
-            paddingBottom: 24,
+            flexDirection: 'row',
             alignItems: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 14,
             backgroundColor: '#fff',
             borderBottomWidth: 1,
             borderColor: '#F3F4F6',
           }}
         >
-          <View
+          <TouchableOpacity
+            onPress={() => router.back()}
             style={{
-              width: 90,
-              height: 90,
-              borderRadius: 45,
-              backgroundColor: '#0D4C3E',
-              justifyContent: 'center',
+              width: 38,
+              height: 38,
+              borderRadius: 19,
+              backgroundColor: '#F3F4F6',
               alignItems: 'center',
-              marginBottom: 14,
+              justifyContent: 'center',
+              marginRight: 12,
             }}
           >
-            <Text style={{ color: '#fff', fontSize: 32, fontWeight: '800' }}>{initials}</Text>
-          </View>
-
-          {loadingProfile ? (
-            <ActivityIndicator color="#0D4C3E" />
-          ) : (
-            <>
-              <Text
-                style={{ fontSize: 22, fontWeight: '800', color: '#111827', textAlign: 'center' }}
-              >
-                {displayName || '—'}
-              </Text>
-              <Text style={{ color: '#6B7280', marginTop: 4, fontSize: 13 }}>
-                {localProfile.email}
-              </Text>
-              {localProfile.phone ? (
-                <Text style={{ color: '#9CA3AF', fontSize: 12, marginTop: 2 }}>
-                  {localProfile.phone}
-                </Text>
-              ) : null}
-              {localProfile.state || localProfile.country ? (
-                <Text style={{ color: '#9CA3AF', fontSize: 12, marginTop: 2 }}>
-                  {[localProfile.state, localProfile.country].filter(Boolean).join(', ')}
-                </Text>
-              ) : null}
-              {localProfile.favourite_subjects.length > 0 && (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    gap: 6,
-                    marginTop: 10,
-                  }}
-                >
-                  {localProfile.favourite_subjects.map((s) => (
-                    <View
-                      key={s}
-                      style={{
-                        backgroundColor: '#E8F5F0',
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                        borderRadius: 20,
-                      }}
-                    >
-                      <Text style={{ fontSize: 11, color: '#0D4C3E', fontWeight: '700' }}>{s}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </>
-          )}
+            <ChevronLeft size={20} color="#374151" />
+          </TouchableOpacity>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: '#111827' }}>Edit Profile</Text>
         </View>
 
-        {/* Settings */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
-          <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827', marginBottom: 12 }}>
-            Settings
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 18,
-              overflow: 'hidden',
-              borderWidth: 1,
-              borderColor: '#F3F4F6',
-            }}
-          >
-            {menuItems.map((item, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={item.onPress}
-                activeOpacity={0.6}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: 16,
-                  borderBottomWidth: i < menuItems.length - 1 ? 1 : 0,
-                  borderColor: '#F3F4F6',
-                }}
-              >
-                <item.icon size={19} color="#4B5563" />
-                <Text
-                  style={{
-                    flex: 1,
-                    marginLeft: 14,
-                    fontSize: 15,
-                    fontWeight: '600',
-                    color: '#374151',
-                  }}
-                >
-                  {item.label}
-                </Text>
-                <ChevronRight size={18} color="#9CA3AF" />
-              </TouchableOpacity>
-            ))}
+        {loadingProfile ? (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator color="#0D4C3E" size="large" />
+            <Text style={{ color: '#9CA3AF', marginTop: 14 }}>Loading your profile…</Text>
           </View>
-
-          <TouchableOpacity
-            onPress={handleSignOut}
-            style={{
-              marginTop: 24,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#FEF2F2',
-              paddingVertical: 16,
-              borderRadius: 14,
-              gap: 8,
-            }}
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ padding: 22, paddingBottom: insets.bottom + 40 }}
+            showsVerticalScrollIndicator={false}
           >
-            <LogOut size={18} color="#EF4444" />
-            <Text style={{ color: '#EF4444', fontSize: 16, fontWeight: '700' }}>Sign Out</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleDeleteAccount}
-            disabled={deleting}
-            style={{
-              marginTop: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 14,
-              gap: 6,
-            }}
-          >
-            {deleting ? (
-              <ActivityIndicator color="#9CA3AF" size="small" />
-            ) : (
-              <Trash2 size={15} color="#9CA3AF" />
-            )}
-            <Text style={{ color: '#9CA3AF', fontSize: 13, fontWeight: '600' }}>
-              {deleting ? 'Deactivating…' : 'Delete Account'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      {/* Edit Profile Modal */}
-      <Modal
-        visible={editVisible}
-        animationType="slide"
-        transparent
-        presentationStyle="overFullScreen"
-      >
-        <KeyboardAvoidingAnimatedView style={{ flex: 1 }} behavior="padding">
-          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-            <View
-              style={{
-                backgroundColor: '#fff',
-                borderTopLeftRadius: 28,
-                borderTopRightRadius: 28,
-                maxHeight: '92%',
-              }}
-            >
+            {/* Avatar preview */}
+            <View style={{ alignItems: 'center', marginBottom: 28 }}>
               <View
                 style={{
-                  flexDirection: 'row',
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
+                  backgroundColor: '#0D4C3E',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: 22,
-                  paddingBottom: 12,
-                  borderBottomWidth: 1,
-                  borderColor: '#F3F4F6',
+                  justifyContent: 'center',
+                  shadowColor: '#0D4C3E',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 8,
+                  elevation: 6,
                 }}
               >
-                <Text style={{ fontSize: 19, fontWeight: '800', color: '#111827' }}>
-                  Edit Profile
-                </Text>
-                <TouchableOpacity onPress={() => setEditVisible(false)}>
-                  <X size={22} color="#6B7280" />
-                </TouchableOpacity>
+                <Text style={{ color: '#fff', fontSize: 28, fontWeight: '800' }}>{initials}</Text>
               </View>
-
-              <ScrollView
-                contentContainerStyle={{ padding: 22, paddingBottom: insets.bottom + 100 }}
-                showsVerticalScrollIndicator={false}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '700',
-                    color: '#374151',
-                    marginBottom: 6,
-                    marginTop: 4,
-                  }}
-                >
-                  FULL NAME
-                </Text>
-                <TextInput
-                  value={editForm.name}
-                  onChangeText={(v) => setEditForm((f) => ({ ...f, name: v }))}
-                  placeholder="Your full name"
-                  placeholderTextColor="#9CA3AF"
-                  style={{
-                    borderWidth: 1.5,
-                    borderColor: '#E5E7EB',
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: '#111827',
-                    backgroundColor: '#F9FAFB',
-                    marginBottom: 16,
-                  }}
-                />
-
-                <Text
-                  style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}
-                >
-                  PHONE NUMBER
-                </Text>
-                <TextInput
-                  value={editForm.phone}
-                  onChangeText={(v) => setEditForm((f) => ({ ...f, phone: v }))}
-                  placeholder="+91 98765 43210"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="phone-pad"
-                  style={{
-                    borderWidth: 1.5,
-                    borderColor: '#E5E7EB',
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: '#111827',
-                    backgroundColor: '#F9FAFB',
-                    marginBottom: 16,
-                  }}
-                />
-
-                <Text
-                  style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}
-                >
-                  EMAIL{' '}
-                  <Text style={{ color: '#9CA3AF', fontWeight: '400' }}>(cannot be changed)</Text>
-                </Text>
-                <View
-                  style={{
-                    borderWidth: 1.5,
-                    borderColor: '#F3F4F6',
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    backgroundColor: '#F3F4F6',
-                    marginBottom: 16,
-                  }}
-                >
-                  <Text style={{ fontSize: 15, color: '#9CA3AF' }}>{localProfile.email}</Text>
-                </View>
-
-                <Text
-                  style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}
-                >
-                  STATE / PROVINCE
-                </Text>
-                <TextInput
-                  value={editForm.state}
-                  onChangeText={onStateChange}
-                  placeholder="e.g. Maharashtra, California"
-                  placeholderTextColor="#9CA3AF"
-                  style={{
-                    borderWidth: 1.5,
-                    borderColor: '#E5E7EB',
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: '#111827',
-                    backgroundColor: '#F9FAFB',
-                    marginBottom: 16,
-                  }}
-                />
-
-                <Text
-                  style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}
-                >
-                  COUNTRY{' '}
-                  <Text style={{ color: '#0D4C3E', fontWeight: '400' }}>
-                    (auto-filled from state)
-                  </Text>
-                </Text>
-                <TextInput
-                  value={editForm.country}
-                  onChangeText={(v) => setEditForm((f) => ({ ...f, country: v }))}
-                  placeholder="e.g. India, USA"
-                  placeholderTextColor="#9CA3AF"
-                  style={{
-                    borderWidth: 1.5,
-                    borderColor: '#E5E7EB',
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                    fontSize: 15,
-                    color: '#111827',
-                    backgroundColor: '#F9FAFB',
-                    marginBottom: 20,
-                  }}
-                />
-
-                <Text
-                  style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 10 }}
-                >
-                  FAVOURITE SUBJECTS
-                </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-                  {SUBJECTS.map((sub) => {
-                    const selected = editForm.favourite_subjects.includes(sub);
-                    return (
-                      <TouchableOpacity
-                        key={sub}
-                        onPress={() => toggleSubject(sub)}
-                        style={{
-                          paddingHorizontal: 14,
-                          paddingVertical: 8,
-                          borderRadius: 20,
-                          borderWidth: 1.5,
-                          borderColor: selected ? '#0D4C3E' : '#E5E7EB',
-                          backgroundColor: selected ? '#0D4C3E' : '#fff',
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 13,
-                            fontWeight: '600',
-                            color: selected ? '#fff' : '#4B5563',
-                          }}
-                        >
-                          {sub}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                <TouchableOpacity
-                  onPress={() => void saveProfile()}
-                  disabled={saving}
-                  style={{
-                    backgroundColor: saving ? '#6B9E90' : '#0D4C3E',
-                    paddingVertical: 16,
-                    borderRadius: 14,
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
-                  {saving ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <Check size={18} color="#fff" />
-                  )}
-                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-                    {saving ? 'Saving…' : 'Save Changes'}
-                  </Text>
-                </TouchableOpacity>
-              </ScrollView>
+              <Text style={{ color: '#9CA3AF', fontSize: 12, marginTop: 8 }}>
+                Initials update as you type your name
+              </Text>
             </View>
-          </View>
-        </KeyboardAvoidingAnimatedView>
-      </Modal>
-    </View>
+
+            {/* Full Name */}
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}>
+              FULL NAME
+            </Text>
+            <TextInput
+              value={form.name}
+              onChangeText={(v) => setForm((f) => ({ ...f, name: v }))}
+              placeholder="Your full name"
+              placeholderTextColor="#9CA3AF"
+              style={inputStyle}
+            />
+
+            {/* Phone */}
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}>
+              PHONE NUMBER
+            </Text>
+            <TextInput
+              value={form.phone}
+              onChangeText={(v) => setForm((f) => ({ ...f, phone: v }))}
+              placeholder="+91 98765 43210"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+              style={inputStyle}
+            />
+
+            {/* Email read-only */}
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}>
+              EMAIL{' '}
+              <Text style={{ color: '#9CA3AF', fontWeight: '400', fontSize: 11 }}>
+                (cannot be changed)
+              </Text>
+            </Text>
+            <View style={{ ...inputStyle, borderColor: '#F3F4F6', backgroundColor: '#F3F4F6' }}>
+              <Text style={{ fontSize: 15, color: '#9CA3AF' }}>{form.email}</Text>
+            </View>
+
+            {/* State */}
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}>
+              STATE / PROVINCE
+            </Text>
+            <TextInput
+              value={form.state}
+              onChangeText={onStateChange}
+              placeholder="e.g. Maharashtra"
+              placeholderTextColor="#9CA3AF"
+              style={inputStyle}
+            />
+
+            {/* Country */}
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 6 }}>
+              COUNTRY{' '}
+              <Text style={{ color: '#0D4C3E', fontWeight: '400', fontSize: 11 }}>
+                (auto-filled from state)
+              </Text>
+            </Text>
+            <TextInput
+              value={form.country}
+              onChangeText={(v) => setForm((f) => ({ ...f, country: v }))}
+              placeholder="e.g. India, USA"
+              placeholderTextColor="#9CA3AF"
+              style={inputStyle}
+            />
+
+            {/* Favourite Subjects */}
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: '700',
+                color: '#374151',
+                marginBottom: 10,
+                marginTop: 4,
+              }}
+            >
+              FAVOURITE SUBJECTS
+            </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+              {SUBJECTS.map((sub) => {
+                const selected = form.favourite_subjects.includes(sub);
+                return (
+                  <TouchableOpacity
+                    key={sub}
+                    onPress={() => toggleSubject(sub)}
+                    style={{
+                      paddingHorizontal: 14,
+                      paddingVertical: 8,
+                      borderRadius: 20,
+                      borderWidth: 1.5,
+                      borderColor: selected ? '#0D4C3E' : '#E5E7EB',
+                      backgroundColor: selected ? '#0D4C3E' : '#fff',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '600',
+                        color: selected ? '#fff' : '#4B5563',
+                      }}
+                    >
+                      {sub}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Save Changes */}
+            <Animated.View style={{ transform: [{ scale: saveAnim }] }}>
+              <TouchableOpacity
+                onPress={() => void saveProfile()}
+                disabled={saving}
+                style={{
+                  backgroundColor: saving ? '#6B9E90' : '#0D4C3E',
+                  paddingVertical: 16,
+                  borderRadius: 16,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                {saving ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Check size={18} color="#fff" />
+                )}
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
+                  {saving ? 'Saving…' : 'Save Changes'}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            {/* Danger Zone divider */}
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 28, gap: 10 }}
+            >
+              <View style={{ flex: 1, height: 1, backgroundColor: '#FEE2E2' }} />
+              <Text style={{ color: '#FCA5A5', fontSize: 11, fontWeight: '700' }}>DANGER ZONE</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: '#FEE2E2' }} />
+            </View>
+
+            {/* Deactivate Account */}
+            <TouchableOpacity
+              onPress={handleDeleteAccount}
+              disabled={deleting}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 14,
+                borderRadius: 14,
+                borderWidth: 1.5,
+                borderColor: '#FEE2E2',
+                backgroundColor: '#FEF2F2',
+                gap: 8,
+              }}
+            >
+              {deleting ? (
+                <ActivityIndicator color="#EF4444" size="small" />
+              ) : (
+                <Trash2 size={16} color="#EF4444" />
+              )}
+              <Text style={{ color: '#EF4444', fontSize: 14, fontWeight: '700' }}>
+                {deleting ? 'Deactivating…' : 'Deactivate Account'}
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={{
+                color: '#9CA3AF',
+                fontSize: 11,
+                textAlign: 'center',
+                marginTop: 8,
+                lineHeight: 16,
+              }}
+            >
+              Your data is kept but you lose access.{'\n'}Contact support to re-enable.
+            </Text>
+          </ScrollView>
+        )}
+      </View>
+    </KeyboardAvoidingAnimatedView>
   );
 }

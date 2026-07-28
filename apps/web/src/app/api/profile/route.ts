@@ -45,15 +45,15 @@ export async function PATCH(request: Request) {
   }
   if (favourite_subjects !== undefined) {
     const arr = Array.isArray(favourite_subjects) ? favourite_subjects : [];
-    // neon HTTP driver sends JS arrays as JSON; PostgreSQL can't auto-cast JSON → text[].
-    // Convert to a PostgreSQL array literal string e.g. {"Biology","Chemistry"} instead.
     const pgArray =
       '{' +
       arr
         .map((s: string) => `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
         .join(',') +
       '}';
-    setClauses.push(`favourite_subjects = $${idx++}`);
+    // ::text[] cast is required — without it the Neon HTTP driver passes the
+    // array literal as a plain text parameter and PostgreSQL won't auto-cast.
+    setClauses.push(`favourite_subjects = $${idx++}::text[]`);
     values.push(pgArray);
   }
 

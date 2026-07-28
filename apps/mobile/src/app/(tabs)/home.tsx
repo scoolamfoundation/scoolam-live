@@ -21,13 +21,15 @@ import {
   Crown,
   Lock,
   Settings,
-  Pencil,
+  Bell,
 } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useUser } from '@/utils/auth/useUser';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import SubscriptionPaywall from '@/components/SubscriptionPaywall';
 import SettingsSheet from '@/components/SettingsSheet';
+import ProfileViewSheet from '@/components/ProfileViewSheet';
 
 interface Stats {
   total_videos: number;
@@ -77,6 +79,8 @@ const BADGE_EMOJI: Record<string, string> = {
   bronze: '🥉',
 };
 
+const READ_KEY = 'scoolam_read_notifications';
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useUser();
@@ -93,6 +97,8 @@ export default function HomeScreen() {
   const [activeChallengeIdx, setActiveChallengeIdx] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileName, setProfileName] = useState('');
+  const [notifUnread, setNotifUnread] = useState(0);
+  const [profileViewOpen, setProfileViewOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -134,6 +140,27 @@ export default function HomeScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loadNotifCount = useCallback(async () => {
+    try {
+      const [notifRes, readRaw] = await Promise.all([
+        fetch('/api/mobile-notifications'),
+        AsyncStorage.getItem(READ_KEY),
+      ]);
+      if (notifRes.ok) {
+        const data = (await notifRes.json()) as { notifications: Array<{ id: string }> };
+        const readIds = new Set<string>(readRaw ? (JSON.parse(readRaw) as string[]) : []);
+        const unread = (data.notifications ?? []).filter((n) => !readIds.has(n.id)).length;
+        setNotifUnread(unread);
+      }
+    } catch {
+      // silently fail
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadNotifCount();
+  }, [loadNotifCount]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -194,6 +221,7 @@ export default function HomeScreen() {
         topicTitle={paywallTopic?.title}
       />
       <SettingsSheet visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <ProfileViewSheet visible={profileViewOpen} onClose={() => setProfileViewOpen(false)} />
 
       {/* Header */}
       <View
@@ -210,8 +238,8 @@ export default function HomeScreen() {
           style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            {/* Avatar — taps to profile for name editing */}
-            <TouchableOpacity onPress={() => router.push('/profile' as any)} activeOpacity={0.8}>
+            {/* Avatar — taps to open profile view sheet */}
+            <TouchableOpacity onPress={() => setProfileViewOpen(true)} activeOpacity={0.8}>
               <View
                 style={{
                   width: 46,
@@ -227,16 +255,15 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <View>
               <Text style={{ color: '#A7C7C1', fontSize: 13 }}>Welcome back,</Text>
-              {/* Tappable name — goes to profile to change name */}
+              {/* Tappable name — opens profile view sheet */}
               <TouchableOpacity
-                onPress={() => router.push('/profile' as any)}
+                onPress={() => setProfileViewOpen(true)}
                 activeOpacity={0.75}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
               >
                 <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>
                   {displayName || 'Learner'}
                 </Text>
-                <Pencil size={12} color="rgba(255,255,255,0.45)" />
               </TouchableOpacity>
               <View
                 style={{
@@ -289,6 +316,36 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
+            {/* Notification Bell */}
+            <TouchableOpacity
+              onPress={() => router.push('/notifications' as any)}
+              activeOpacity={0.7}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: 'rgba(255,255,255,0.15)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Bell size={20} color="#fff" />
+              {notifUnread > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    width: 9,
+                    height: 9,
+                    borderRadius: 5,
+                    backgroundColor: '#EF4444',
+                    borderWidth: 1.5,
+                    borderColor: '#0D4C3E',
+                  }}
+                />
+              )}
+            </TouchableOpacity>
             {/* Settings Gear */}
             <TouchableOpacity
               onPress={() => setSettingsOpen(true)}
