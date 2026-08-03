@@ -14,6 +14,8 @@ import {
   Info,
   ExternalLink,
   RefreshCw,
+  Power,
+  PowerOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -431,13 +433,23 @@ export default function ManageSubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Plan | null | 'new'>(null);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
+  const [togglingSubscriptions, setTogglingSubscriptions] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const res = await fetch('/api/admin/subscription');
-    if (res.ok) {
-      const data = await res.json();
+    const [plansRes, settingsRes] = await Promise.all([
+      fetch('/api/admin/subscription'),
+      fetch('/api/admin/settings'),
+    ]);
+    if (plansRes.ok) {
+      const data = await plansRes.json();
       setPlans(data.plans ?? []);
+    }
+    if (settingsRes.ok) {
+      const data = await settingsRes.json();
+      const enabled = data.settings?.subscriptions_enabled;
+      setSubscriptionsEnabled(enabled == null ? true : enabled?.enabled !== false);
     }
     setLoading(false);
   };
@@ -445,6 +457,23 @@ export default function ManageSubscriptionPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  const toggleSubscriptions = async () => {
+    const newValue = !subscriptionsEnabled;
+    setTogglingSubscriptions(true);
+    const res = await fetch('/api/admin/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'subscriptions_enabled', value: { enabled: newValue } }),
+    });
+    setTogglingSubscriptions(false);
+    if (res.ok) {
+      setSubscriptionsEnabled(newValue);
+      toast.success(newValue ? 'Subscriptions enabled' : 'Subscriptions disabled');
+    } else {
+      toast.error('Failed to update subscription status');
+    }
+  };
 
   const handleSave = async (data: Omit<Plan, 'id'>) => {
     if (editing === 'new') {
@@ -489,6 +518,23 @@ export default function ManageSubscriptionPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Subscriptions Enable/Disable Toggle */}
+          <button
+            onClick={() => void toggleSubscriptions()}
+            disabled={togglingSubscriptions || loading}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${
+              subscriptionsEnabled
+                ? 'bg-[#E8F5F0] border-[#0D4C3E] text-[#0D4C3E] hover:bg-[#D1FAE5]'
+                : 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
+            }`}
+          >
+            {subscriptionsEnabled ? <Power size={15} /> : <PowerOff size={15} />}
+            {togglingSubscriptions
+              ? 'Saving…'
+              : subscriptionsEnabled
+                ? 'Subscriptions ON'
+                : 'Subscriptions OFF'}
+          </button>
           <Button variant="outline" size="sm" className="gap-1" onClick={() => void load()}>
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -500,6 +546,21 @@ export default function ManageSubscriptionPage() {
           </Button>
         </div>
       </div>
+
+      {/* Disabled subscriptions banner */}
+      {!subscriptionsEnabled && !loading && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex gap-3 mb-6">
+          <PowerOff size={18} className="text-red-500 shrink-0 mt-0.5" />
+          <div className="text-sm text-red-700">
+            <p className="font-bold">Subscriptions are currently DISABLED</p>
+            <p className="text-red-500 mt-1">
+              No paid subscription plans are shown in the user app. Any plan marked as
+              subscription-based will not appear. Only <strong>free plans</strong> (price = ₹0 / $0)
+              remain visible. Toggle above to re-enable subscriptions.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* RevenueCat info banner */}
       <div className="bg-[#F0FDF4] border border-[#A7F3D0] rounded-2xl p-4 flex gap-3 mb-6">

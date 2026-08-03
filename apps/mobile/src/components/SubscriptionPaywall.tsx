@@ -64,6 +64,7 @@ export default function SubscriptionPaywall({
   const [adminPlans, setAdminPlans] = useState<AdminPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [restoring, setRestoring] = useState(false);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
 
   // Fetch admin plan metadata (features list, names, etc.)
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function SubscriptionPaywall({
         if (res.ok) {
           const data = await res.json();
           setAdminPlans(data.plans ?? []);
+          setSubscriptionsEnabled(data.subscriptions_enabled !== false);
         }
       } catch {
         /* ignore */
@@ -247,6 +249,35 @@ export default function SubscriptionPaywall({
                 <ActivityIndicator color="#0D4C3E" size="large" />
                 <Text style={{ color: '#9CA3AF', marginTop: 12, fontSize: 14 }}>
                   Loading plans…
+                </Text>
+              </View>
+            ) : !subscriptionsEnabled ? (
+              /* Subscriptions disabled by admin */
+              <View
+                style={{
+                  backgroundColor: '#FEF3C7',
+                  borderRadius: 20,
+                  padding: 24,
+                  alignItems: 'center',
+                  marginVertical: 8,
+                }}
+              >
+                <Text style={{ fontSize: 32, marginBottom: 12 }}>🔒</Text>
+                <Text
+                  style={{ fontSize: 16, fontWeight: '800', color: '#92400E', textAlign: 'center' }}
+                >
+                  Subscriptions Unavailable
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: '#B45309',
+                    textAlign: 'center',
+                    marginTop: 8,
+                    lineHeight: 20,
+                  }}
+                >
+                  Subscription plans are temporarily unavailable. Please check back later.
                 </Text>
               </View>
             ) : !hasPackages ? (

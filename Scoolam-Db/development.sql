@@ -1415,12 +1415,14 @@ COPY "worksheets" FROM stdin;
 \.
 
 COPY "user" FROM stdin;
-DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	sunil	sunil@gmail.com	f	\N	2026-07-08 07:21:04.003	2026-07-08 07:21:04.003	f				{}	t	f	\N	0.00
 MJJqtlQRh4WhVboAlFMTlQl2CPgxiGEz	sam	sam@gmail.com	f	\N	2026-07-17 11:00:31.85	2026-07-17 11:00:31.85	f				{}	t	f	\N	0.00
 hwlpgFuM8GTjvkaohWE7GE07F71ZAyaX	tt	tt@gmail.com	f	\N	2026-07-19 05:46:57.065	2026-07-19 05:46:57.065	f				{}	t	f	\N	0.00
 DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	Sam james	james@gmail.com	f	\N	2026-07-08 07:31:55.266	2026-07-26 05:50:29.070581	t				{}	t	f	\N	0.00
 0SfaTNSZb2pcx7xA3A33T5wrGneTizJV	Scoolam User	dev@scoolam.com	f	\N	2026-07-26 05:51:38.897	2026-07-26 05:51:38.897	f				{}	t	f	\N	0.00
 tk2sRhAjJ4JzLfxvxWuHdEaIgqh2YhRm	insidergoa	insidergoa@gmail.com	f	\N	2026-07-26 06:00:33.54	2026-07-26 06:00:33.54	f				{}	t	f	\N	0.00
+GxkVVxujIV9X2yFDzFIpGjB732H2hrSn	sunil09623	sunil09623@gmail.com	f	\N	2026-07-29 09:58:11.719	2026-07-29 09:58:11.719	f				{}	t	f	\N	0.00
+6ZgIrVuz1x5UgVg31Ao6xSIOn02PzJIS	goainsider	goainsider@gmail.com	f	\N	2026-08-03 16:24:34.532	2026-08-03 16:24:34.532	f				{}	t	f	\N	0.00
+DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	sunit	sunil@gmail.com	f	\N	2026-07-08 07:21:04.003	2026-08-03 16:28:13.395777	f				{}	t	f	\N	0.00
 
 \.
 
@@ -1479,11 +1481,23 @@ r53LPWBrAouY8OWKBbjthzqo4ASuAAbi	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	6ZR80dXQQ0s120
 1wK5OINuWKfQlpLfL9J1XeWv6FEQwVZx	0SfaTNSZb2pcx7xA3A33T5wrGneTizJV	AzgAbVbmLyDVhHxVlNnvOi6rY3JqJlZv	2026-08-02 05:51:39.024	10.12.53.114	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-26 05:51:39.024	2026-07-26 05:51:39.024
 7qFrTRReq6SdYHFygf21b2ER9POpsXcH	tk2sRhAjJ4JzLfxvxWuHdEaIgqh2YhRm	cybiMZWVo0qi9xnLdkabcvDMeu42XAXc	2026-08-02 06:00:33.664	10.12.53.114	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-26 06:00:33.664	2026-07-26 06:00:33.664
 026eUIVt6S9edJAxg6SGMbLhRBigBtRu	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	fd6QSa6a6s06Qki617uuunhOIAaGO0y5	2026-08-02 18:53:02.808	10.12.53.114	Mozilla/5.0 (Linux; Android 16; SM-S721B Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.124 Mobile Safari/537.36	2026-07-26 18:53:02.809	2026-07-26 18:53:02.809
+nu54KGycHXDDFeULf0hDr1jJ64f2eUDk	6ZgIrVuz1x5UgVg31Ao6xSIOn02PzJIS	QIeTvj7VP2VcrpJT1WDoHNoc4ARnvytm	2026-08-10 16:24:34.685	10.12.59.20	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-08-03 16:24:34.686	2026-08-03 16:24:34.686
+lw3GGwIIcZpK7w68N9uOmEI2jRWnFxP4	DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	dRLL679L8M1KPZnOKzy8o67XnCNVJd6C	2026-08-10 16:27:37.93	10.12.59.20	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-08-03 16:27:37.931	2026-08-03 16:27:37.931
 yisR0sIlDBMI4VXfFWGsUXDy6NDT3v6G	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	3yUMSJ6b6qyHkOEghrIkWNODmM3ynxHD	2026-08-03 08:32:34.422	10.12.201.162	Mozilla/5.0 (Linux; Android 16; SM-S721B Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.124 Mobile Safari/537.36	2026-07-27 08:32:34.423	2026-07-27 08:32:34.423
 uyY8nqjDNvtOLD8Isx8q1SfIkezalwVu	DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	I04zSZmSxAmgb0dVuHQPL1RhStSloJYJ	2026-08-03 08:46:52.471	10.12.201.162	Mozilla/5.0 (Linux; Android 16; SM-S921E Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.124 Mobile Safari/537.36	2026-07-27 08:46:52.472	2026-07-27 08:46:52.472
 FrH7uSHgwNhIJdPusKZ01DX90cqfrQ8Z	DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	CT6VLepLPw6ELK9IbcccGABL3XdtEAKK	2026-08-04 10:21:31.328	10.12.53.114	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-26 06:13:34.331	2026-07-28 10:21:31.328
 EUUoCjh1GWvmjSRJJNM0nhcuxzTBqICh	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	WyxN5tlMvrUsyQHLQUg6YLT6wg5eSWMk	2026-08-04 10:41:42.365	10.12.7.80	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-28 10:41:42.366	2026-07-28 10:41:42.366
 dUz6DKzp7e8KeIgsMEx6tuo5ESlyIHdz	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	WIdYVr1io8hBt0Uj77mshGLUfgYR5GCm	2026-08-04 10:43:09.058	10.12.7.80	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-28 10:43:09.058	2026-07-28 10:43:09.058
+G9F8ASZs55nqLQgsrxG96DfS3244BNxO	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	YgeerJJemAtjSZd0iubu2tBZ49goKdLd	2026-08-04 15:57:46.444	10.12.7.80	Mozilla/5.0 (Linux; Android 16; SM-S721B Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.124 Mobile Safari/537.36	2026-07-28 15:57:46.445	2026-07-28 15:57:46.445
+YBw4H24GlVtofb75bJ4mDqUNI1ZVVArn	GxkVVxujIV9X2yFDzFIpGjB732H2hrSn	6MT1a0ihriAMTco700Q5PI7L6QTK1tgb	2026-08-05 09:58:11.858	10.12.126.78	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-29 09:58:11.859	2026-07-29 09:58:11.859
+N55ugRrN5M4LnEWMBz9ftCmB2gO3dZJJ	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	VAuFp42GqDnHrWTFrXV5r3MRDuiD4aB0	2026-08-05 18:49:08.282	10.12.108.144	Mozilla/5.0 (Linux; Android 16; SM-S721B Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.124 Mobile Safari/537.36	2026-07-29 18:49:08.283	2026-07-29 18:49:08.283
+UfWkiJiciONRWMEFuMY6bMKIdjFdPwnL	DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	9JreAmH5o9yi36s4k4dGtGhIkv8VR1pD	2026-08-07 10:13:14.445	10.12.251.26	Mozilla/5.0 (iPad; CPU OS 26_5_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/150.0.7871.113 Mobile/15E148 Safari/604.1	2026-07-31 10:13:14.447	2026-07-31 10:13:14.447
+EBBPx2rZIHOHGM4tCx0HMwTREH7lGBcx	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	PJYA9D4hJ6DlgbNBAYVvRqcvmPlaoqnV	2026-08-07 10:26:37.266	10.12.251.26	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-31 10:26:37.267	2026-07-31 10:26:37.267
+YvtyL2zd9yPJwd83vX52Btnjg4fVbKPI	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	H1dRD7pEAngQcGD30so6N38I66vYq7P3	2026-08-07 10:26:51.438	10.12.251.26	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-31 10:26:51.438	2026-07-31 10:26:51.438
+SIFDfgZWDX2l5yRT4S5XCJZxWUBHrTFP	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	szQCT5kheBFvCdxYC7h3xhcUgU7KRN9U	2026-08-07 10:27:04.946	10.12.251.26	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-31 10:27:04.947	2026-07-31 10:27:04.947
+cj3wgMQBiB8CKfyJAqrmhnpHBzxOZfqk	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	dqKVujNxHWj2MpyLjsij7otYLEl8groX	2026-08-08 05:51:08.002	10.12.251.26	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-08-01 05:51:08.002	2026-08-01 05:51:08.002
+Ab9CyQGDvArUKnhFYIsEBsLuqLj5Jyo5	DNeu5NgkjDEes1jEIlM0oGOsjckgBfY2	D4mdqVwryM7pYQTCp0VMfshxFGFyhiHc	2026-08-08 17:58:43.044	10.12.13.100	Mozilla/5.0 (Linux; Android 16; SM-S721B Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.181 Mobile Safari/537.36	2026-08-01 17:58:43.045	2026-08-01 17:58:43.045
+XX1iMceSfpRdtNK2C3a0EHO3Fzn32qIH	DuEZ0FL3YWfY0SmPruP1Q5xUq3NqgJGc	4FWar3OujHIJxzA86A2f4f3makhu2Q7C	2026-08-10 16:21:14.914	10.12.143.204	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36	2026-07-30 15:22:07.413	2026-08-03 16:21:14.914
 
 \.
 
@@ -1524,11 +1538,15 @@ YOJlBXHyAK5CR049PxBTuUc4vGVHZOHp	MJJqtlQRh4WhVboAlFMTlQl2CPgxiGEz	MJJqtlQRh4WhVb
 6dOxJ3vMHsQSogzLNsVEZQv3lRzOjj2Q	hwlpgFuM8GTjvkaohWE7GE07F71ZAyaX	hwlpgFuM8GTjvkaohWE7GE07F71ZAyaX	credential	\N	\N	\N	\N	\N	\N	63c2c2ba626edcd31bfbeee36c84b6e2:54c1438deef004d64d5bac9e8264a03061ce7e2e1ed0e51cbb13bc13f56219b6b06c74d466d1a923a402d1c4e8339c64db4eef25c5a521d057684bd240ed1542	2026-07-19 05:46:57.142	2026-07-19 05:46:57.142
 VzFUyjTE8hwIu9UjwxQt5JjlpJP41lEj	0SfaTNSZb2pcx7xA3A33T5wrGneTizJV	0SfaTNSZb2pcx7xA3A33T5wrGneTizJV	credential	\N	\N	\N	\N	\N	\N	de4b08ce7a7e92381861b36957ce9d52:1e9d9023fcb20461ab0d3b7ca237e066d6d5e97548b68a47e2bc46627506c32b0f74b16ae157cc0bf6ce539c7d1d55b28126ad1e5f418467d7db13e8bdff9928	2026-07-26 05:51:38.961	2026-07-26 05:51:38.961
 G4IALiyPkSL60mPhhcsjWGM2y5Svhm1y	tk2sRhAjJ4JzLfxvxWuHdEaIgqh2YhRm	tk2sRhAjJ4JzLfxvxWuHdEaIgqh2YhRm	credential	\N	\N	\N	\N	\N	\N	5d85b0fe9c066d75e0f8158120ef8222:4280d38feda006e9b61cfae0cc0632c220756c6593effbcb1626d4c9af924530bb9bfe9ec22cc945665fd8f2c453c2cfd35ac579cfe0e26cc57f3dbc2c269767	2026-07-26 06:00:33.602	2026-07-26 06:00:33.602
+JKcNvvwNkVWC70ZWllu0krBIflkQmIak	GxkVVxujIV9X2yFDzFIpGjB732H2hrSn	GxkVVxujIV9X2yFDzFIpGjB732H2hrSn	credential	\N	\N	\N	\N	\N	\N	c1dd37ce288419616c2c9ba8f350e53d:459cdbbc5a6731fe459cec27cacef2d3430c510dd676ae2dd3a699d026fd4a5d5344b075035c1cb9c8012860bbac2cf4c34da5e09b68b23f4cfde82de579528a	2026-07-29 09:58:11.787	2026-07-29 09:58:11.787
+gDqkIxMVVpgqyEO9k5unWgJPoSERUTiq	6ZgIrVuz1x5UgVg31Ao6xSIOn02PzJIS	6ZgIrVuz1x5UgVg31Ao6xSIOn02PzJIS	credential	\N	\N	\N	\N	\N	\N	e5964a3059b1cc2d74a009e9df437804:7815f04ce1584b37a2a2113a53a712fca9d77bc65dbf559d7f22d9150856d0c31d67797d858ce58b46e72abc0f88cb088b221a0e83ebb2c6978f914100f04578	2026-08-03 16:24:34.607	2026-08-03 16:24:34.607
 
 \.
 
 COPY "verification" FROM stdin;
 otp_1785045683467_uugcfgqohp	insidergoa@gmail.com	162449	2026-07-26 06:11:23.291	2026-07-26 06:01:23.615477	2026-07-26 06:01:23.615477
+otp_1785319096376_kddeiudfi5l	sunil09623@gmail.com	160248	2026-07-29 10:08:16.188	2026-07-29 09:58:16.528455	2026-07-29 09:58:16.528455
+otp_1785774277751_b4olptykuse	goainsider@gmail.com	156388	2026-08-03 16:34:37.536	2026-08-03 16:24:37.921576	2026-08-03 16:24:37.921576
 
 \.
 
@@ -1637,7 +1655,9 @@ privacy	<!--StartFragment--><h2 class="text-text-100 mt-3 -mb-1 text-[1.375rem] 
 
 COPY "app_settings" FROM stdin;
 free_limits	{"mcqs_per_day": 5, "videos_per_day": 2, "worksheets_per_day": 2, "infographics_per_day": 3}	2026-07-16 08:43:26.464072+00
-payment_gateway	{"stripe_webhook_secret": "", "stripe_publishable_key": ""}	2026-07-19 07:33:31.301249+00
+payment_gateway	{"stripe_webhook_secret": ", "stripe_publishable_key": "}	2026-07-19 07:33:31.301249+00
 revenuecat_config	{"offering_id": "default", "entitlement_id": "premium"}	2026-07-22 19:41:05.12945+00
+smtp_config	{"smtp_host": "smtp.gmail.com", "smtp_pass": "ldyj lnxy vswk evgt", "smtp_port": 587, "smtp_user": "scoolamfoundation@gmail.com", "smtp_from_name": "Scoolam"}	2026-07-31 10:28:07.44467+00
+subscriptions_enabled	{"enabled": true}	2026-07-31 13:23:36.578386+00
 
 \.

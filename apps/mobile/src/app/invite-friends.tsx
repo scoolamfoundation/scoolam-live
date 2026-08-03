@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TextInput,
   Share,
+  Alert,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

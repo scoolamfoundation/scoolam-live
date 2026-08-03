@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -47,6 +47,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
   const { user } = useUser();
 
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
@@ -65,11 +66,20 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
     }
   }, [visible, slideAnim]);
 
+  // Navigate AFTER the modal has been dismissed to avoid real-device routing issues
+  useEffect(() => {
+    if (!visible && pendingNav) {
+      const timer = setTimeout(() => {
+        router.push(pendingNav as never);
+        setPendingNav(null);
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, pendingNav, router]);
+
   const navigate = (path: string) => {
+    setPendingNav(path);
     onClose();
-    setTimeout(() => {
-      router.push(path as never);
-    }, 300);
   };
 
   const handleSignOut = () => {

@@ -42,6 +42,16 @@ function SignInForm() {
     }
 
     if (typeof window !== 'undefined') {
+      // Check if the user is an admin and redirect accordingly
+      try {
+        const res = await fetch('/api/admin/me');
+        if (res.ok) {
+          window.location.href = '/admin';
+          return;
+        }
+      } catch {
+        // not admin, fall through to callbackUrl
+      }
       window.location.href = callbackUrl;
     } else {
       console.warn('signin: window is undefined; cannot redirect to callbackUrl');

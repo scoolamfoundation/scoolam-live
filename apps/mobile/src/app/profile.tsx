@@ -100,12 +100,13 @@ export default function ProfileScreen() {
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  // Start with cached user data so the form shows immediately — no blank loading state
+  const [loadingProfile, setLoadingProfile] = useState(false);
   const saveAnim = useRef(new Animated.Value(1)).current;
 
   const [form, setForm] = useState<ProfileData>({
-    name: '',
-    email: '',
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     phone: '',
     state: '',
     country: '',
@@ -115,7 +116,7 @@ export default function ProfileScreen() {
   const loadProfile = useCallback(async () => {
     try {
       const res = await fetch('/api/profile');
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) return; // silently keep cached data
       const data = await res.json();
       setForm({
         name: data.user.name ?? '',
@@ -126,18 +127,11 @@ export default function ProfileScreen() {
         favourite_subjects: data.user.favourite_subjects ?? [],
       });
     } catch {
-      setForm({
-        name: user?.name ?? '',
-        email: user?.email ?? '',
-        phone: '',
-        state: '',
-        country: '',
-        favourite_subjects: [],
-      });
+      // keep cached data from session
     } finally {
       setLoadingProfile(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     void loadProfile();
@@ -179,12 +173,29 @@ export default function ProfileScreen() {
           favourite_subjects: form.favourite_subjects,
         }),
       });
-      if (!res.ok) throw new Error('Failed');
-      Alert.alert('Saved! ✅', 'Your profile has been updated.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
-    } catch {
-      Alert.alert('Error', 'Could not save profile. Please try again.');
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => ({}))) as { error?: string };
+        const errMsg = errData.error ?? `Server error (${res.status})`;
+        Alert.alert('Error', errMsg);
+        return;
+      }
+      try {
+        const data = await res.json();
+        Alert.alert('Saved! ✅', 'Your profile has been updated.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      } catch {
+        Alert.alert('Saved! ✅', 'Your profile has been updated.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.error('Profile save error:', errMsg);
+      Alert.alert(
+        'Error',
+        `Could not save profile. ${errMsg || 'Check your connection and try again.'}`
+      );
     } finally {
       setSaving(false);
     }

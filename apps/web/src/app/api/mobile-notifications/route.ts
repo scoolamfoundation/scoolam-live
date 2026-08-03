@@ -67,7 +67,7 @@ export async function GET() {
     notifications.push({
       id: `topic_${t.id}`,
       type: 'new_topic',
-      title: '📚 New Topic Available',
+      title: 'New Topic Available',
       body: `"${t.title}" has been added${t.category ? ` in ${t.category}` : ''}. Start learning now!`,
       created_at: String(t.created_at),
       data: { topic_id: t.id },
@@ -78,14 +78,14 @@ export async function GET() {
   for (const ticket of helpTicketRows) {
     const statusLabel =
       ticket.status === 'resolved'
-        ? 'resolved ✅'
+        ? 'resolved'
         : ticket.status === 'in_progress'
-          ? 'being reviewed 🔄'
+          ? 'being reviewed'
           : ticket.status;
     notifications.push({
       id: `ticket_${ticket.id}`,
       type: 'ticket_updated',
-      title: '🎫 Support Ticket Updated',
+      title: 'Support Ticket Updated',
       body: `Your report "${ticket.subject}" has been ${statusLabel} by the team.`,
       created_at: String(ticket.created_at),
       data: { ticket_id: ticket.id },
@@ -97,7 +97,7 @@ export async function GET() {
     notifications.push({
       id: `pending_quiz_${t.id}`,
       type: 'pending_quiz',
-      title: '⏰ Complete Your Quiz',
+      title: 'Complete Your Quiz',
       body: `You watched "${t.title}" but haven't taken the quiz yet. Test your knowledge!`,
       created_at: String(t.watched_at),
       data: { topic_id: t.id },
@@ -109,7 +109,7 @@ export async function GET() {
     notifications.push({
       id: `challenge_${c.id}`,
       type: 'daily_challenge',
-      title: '⚡ Daily Challenge Ready',
+      title: 'Daily Challenge Ready',
       body: `"${c.title}" — Test yourself with today's challenge!`,
       created_at: new Date().toISOString(),
       data: { challenge_id: c.id },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   RefreshControl,
   useWindowDimensions,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -86,6 +88,7 @@ export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const appState = useRef(AppState.currentState);
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -136,6 +139,17 @@ export default function HomeScreen() {
       setRefreshing(false);
     }
   }, []);
+
+  // Refresh data whenever the app comes back to the foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        void load();
+      }
+      appState.current = nextState;
+    });
+    return () => subscription.remove();
+  }, [load]);
 
   useEffect(() => {
     void load();

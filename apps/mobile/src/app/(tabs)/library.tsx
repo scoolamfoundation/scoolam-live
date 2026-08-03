@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Alert,
   Modal,
   Dimensions,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Download, FileText, ImageIcon, RefreshCw, Settings, X } from 'lucide-react-native';
@@ -37,6 +39,7 @@ interface Worksheet {
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const { tab } = useLocalSearchParams();
+  const appState = useRef(AppState.currentState);
   const [activeTab, setActiveTab] = useState<'infographics' | 'worksheets'>(
     tab === 'worksheets' ? 'worksheets' : 'infographics'
   );
@@ -84,6 +87,18 @@ export default function LibraryScreen() {
   useEffect(() => {
     void fetchWorksheets();
   }, [fetchWorksheets]);
+
+  // Refresh data whenever the app comes back to the foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        void fetchInfographics();
+        void fetchWorksheets();
+      }
+      appState.current = nextState;
+    });
+    return () => subscription.remove();
+  }, [fetchInfographics, fetchWorksheets]);
 
   // Replace handleDownload with in-app viewer
   const openFile = (url: string, title: string) => {

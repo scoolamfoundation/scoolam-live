@@ -32,22 +32,45 @@ export async function sendEmail({
     throw new Error('SMTP not configured. Please configure SMTP settings in the Admin panel.');
   }
 
+  const port = Number(config.smtp_port) || 587;
+  const isSecure = port === 465;
+
   const transporter = nodemailer.createTransport({
     host: config.smtp_host || 'smtp.gmail.com',
-    port: Number(config.smtp_port) || 587,
-    secure: Number(config.smtp_port) === 465,
+    port,
+    secure: isSecure,
     auth: {
       user: config.smtp_user,
       pass: config.smtp_pass,
     },
-  });
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  } as Parameters<typeof nodemailer.createTransport>[0]);
 
-  await transporter.sendMail({
-    from: `"${config.smtp_from_name || 'Scoolam'}" <${config.smtp_user}>`,
-    to,
-    subject,
-    html,
-  });
+  // verify connection config before attempting to send — gives a clearer error
+  try {
+    await transporter.verify();
+  } catch (verifyErr) {
+    const msg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
+    throw new Error(
+      `SMTP connection failed: ${msg}. Check your host, port, username and App Password.`
+    );
+  }
+
+  try {
+    await transporter.sendMail({
+      from: `"${config.smtp_from_name || 'Scoolam'}" <${config.smtp_user}>`,
+      to,
+      subject,
+      html,
+    });
+  } finally {
+    transporter.close();
+  }
 }
 
 export function buildOtpEmailHtml(otp: string, recipientEmail: string): string {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Clock, ChevronRight, BookOpen, Lock, Crown, Settings } from 'lucide-react-native';
@@ -40,6 +42,7 @@ interface Topic {
 export default function TopicsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const appState = useRef(AppState.currentState);
   const [activeCategory, setActiveCategory] = useState('All');
   const [topics, setTopics] = useState<Topic[]>([]);
   const [userIsPremium, setUserIsPremium] = useState(false);
@@ -48,28 +51,41 @@ export default function TopicsScreen() {
   const [paywallTopic, setPaywallTopic] = useState<Topic | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const [topicsRes, premiumRes] = await Promise.all([
-          fetch('/api/topics'),
-          fetch('/api/user-premium'),
-        ]);
-        if (!topicsRes.ok) throw new Error('Failed');
-        const data = await topicsRes.json();
-        setTopics(data.topics ?? []);
+  const load = useCallback(async () => {
+    try {
+      const [topicsRes, premiumRes] = await Promise.all([
+        fetch('/api/topics'),
+        fetch('/api/user-premium'),
+      ]);
+      if (!topicsRes.ok) throw new Error('Failed');
+      const data = await topicsRes.json();
+      setTopics(data.topics ?? []);
 
-        if (premiumRes.ok) {
-          const premiumData = await premiumRes.json();
-          setUserIsPremium(premiumData.is_premium ?? false);
-        }
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
+      if (premiumRes.ok) {
+        const premiumData = await premiumRes.json();
+        setUserIsPremium(premiumData.is_premium ?? false);
       }
-    })();
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Refresh data whenever the app comes back to the foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        void load();
+      }
+      appState.current = nextState;
+    });
+    return () => subscription.remove();
+  }, [load]);
 
   const handleTopicPress = (item: Topic) => {
     if (item.is_premium && !userIsPremium) {
