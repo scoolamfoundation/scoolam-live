@@ -9,11 +9,12 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import { toast } from 'sonner-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Check, Trash2 } from 'lucide-react-native';
 import { useUser } from '@/utils/auth/useUser';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/utils/auth/useAuth';
+import { useAuth, useRequireAuth } from '@/utils/auth/useAuth';
 import KeyboardAvoidingAnimatedView from '@/components/KeyboardAvoidingAnimatedView';
 
 const STATE_COUNTRY_MAP: Record<string, string> = {
@@ -98,6 +99,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { signOut, signIn } = useAuth();
 
+  // Block unauthenticated access — shows the sign-in modal if not logged in
+  useRequireAuth();
+
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // Start with cached user data so the form shows immediately — no blank loading state
@@ -153,7 +157,7 @@ export default function ProfileScreen() {
 
   const saveProfile = async () => {
     if (!form.name.trim()) {
-      Alert.alert('Validation', 'Name cannot be empty.');
+      toast.error('Name cannot be empty.');
       return;
     }
     setSaving(true);
@@ -176,26 +180,16 @@ export default function ProfileScreen() {
       if (!res.ok) {
         const errData = (await res.json().catch(() => ({}))) as { error?: string };
         const errMsg = errData.error ?? `Server error (${res.status})`;
-        Alert.alert('Error', errMsg);
+        toast.error(errMsg);
         return;
       }
-      try {
-        const data = await res.json();
-        Alert.alert('Saved! ✅', 'Your profile has been updated.', [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      } catch {
-        Alert.alert('Saved! ✅', 'Your profile has been updated.', [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      }
+      await res.json().catch(() => {});
+      toast.success('Profile saved successfully!');
+      setTimeout(() => router.back(), 1500);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
       console.error('Profile save error:', errMsg);
-      Alert.alert(
-        'Error',
-        `Could not save profile. ${errMsg || 'Check your connection and try again.'}`
-      );
+      toast.error(`Could not save profile. ${errMsg || 'Check your connection and try again.'}`);
     } finally {
       setSaving(false);
     }
@@ -218,7 +212,7 @@ export default function ProfileScreen() {
               router.replace('/');
               setTimeout(() => signIn(), 400);
             } catch {
-              Alert.alert('Error', 'Could not deactivate account.');
+              toast.error('Could not deactivate account.');
             } finally {
               setDeleting(false);
             }

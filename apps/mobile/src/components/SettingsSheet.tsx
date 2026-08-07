@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -49,8 +49,31 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const [pendingNav, setPendingNav] = useState<string | null>(null);
 
+  // Fresh name/email fetched from DB so profile updates are reflected immediately
+  const [freshName, setFreshName] = useState<string>('');
+  const [freshEmail, setFreshEmail] = useState<string>('');
+
+  const fetchFreshProfile = useCallback(async () => {
+    try {
+      const res = await fetch('/api/profile');
+      if (res.ok) {
+        const data = await res.json();
+        setFreshName(data.user?.name ?? '');
+        setFreshEmail(data.user?.email ?? '');
+      }
+    } catch {
+      // keep session data on error
+    }
+  }, []);
+
   useEffect(() => {
     if (visible) {
+      // Seed immediately from session so there's no blank flash
+      setFreshName(user?.name ?? '');
+      setFreshEmail(user?.email ?? '');
+      // Fetch latest from DB in background to pick up any name changes
+      void fetchFreshProfile();
+
       Animated.spring(slideAnim, {
         toValue: 0,
         useNativeDriver: true,
@@ -64,7 +87,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
         useNativeDriver: true,
       }).start();
     }
-  }, [visible, slideAnim]);
+  }, [visible, slideAnim, fetchFreshProfile, user]);
 
   // Navigate AFTER the modal has been dismissed to avoid real-device routing issues
   useEffect(() => {
@@ -90,7 +113,9 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
     }, 300);
   };
 
-  const displayName = user?.name ?? '';
+  // Always prefer fresh DB data; fall back to session while loading
+  const displayName = freshName || user?.name || '';
+  const displayEmail = freshEmail || user?.email || '';
   const initials = displayName
     ? displayName
         .split(' ')
@@ -211,9 +236,7 @@ export default function SettingsSheet({ visible, onClose }: SettingsSheetProps) 
             <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827' }}>
               {displayName || 'Account'}
             </Text>
-            <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 1 }}>
-              {user?.email ?? ''}
-            </Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 1 }}>{displayEmail}</Text>
           </View>
           <TouchableOpacity
             onPress={onClose}

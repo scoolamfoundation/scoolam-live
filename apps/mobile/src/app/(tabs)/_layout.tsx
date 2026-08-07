@@ -1,8 +1,20 @@
 import { Tabs } from 'expo-router';
 import { Home, Play, BookOpen } from 'lucide-react-native';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
+import { useAuth, useRequireAuth } from '@/utils/auth/useAuth';
 
 export default function TabLayout() {
+  const { isReady, isAuthenticated } = useAuth();
+
+  // Trigger the sign-in modal automatically when the user is not authenticated
+  useRequireAuth();
+
+  // Block tab content from rendering until auth state is confirmed.
+  // The AuthModal mounted in root _layout.tsx will prompt the user to sign in.
+  if (!isReady || !isAuthenticated) {
+    return <View style={{ flex: 1, backgroundColor: '#0D4C3E' }} />;
+  }
+
   return (
     <Tabs
       screenOptions={{

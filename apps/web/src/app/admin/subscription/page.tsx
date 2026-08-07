@@ -14,8 +14,6 @@ import {
   Info,
   ExternalLink,
   RefreshCw,
-  Power,
-  PowerOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -517,24 +515,30 @@ export default function ManageSubscriptionPage() {
             Configure plans shown in the app. Link each paid plan to its store product IDs.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Subscriptions Enable/Disable Toggle */}
-          <button
-            onClick={() => void toggleSubscriptions()}
-            disabled={togglingSubscriptions || loading}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ${
-              subscriptionsEnabled
-                ? 'bg-[#E8F5F0] border-[#0D4C3E] text-[#0D4C3E] hover:bg-[#D1FAE5]'
-                : 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
+          <div
+            className={`flex items-center gap-3 px-4 py-2 rounded-xl border-2 transition-all ${
+              subscriptionsEnabled ? 'bg-[#E8F5F0] border-[#0D4C3E]' : 'bg-red-50 border-red-300'
             }`}
           >
-            {subscriptionsEnabled ? <Power size={15} /> : <PowerOff size={15} />}
-            {togglingSubscriptions
-              ? 'Saving…'
-              : subscriptionsEnabled
-                ? 'Subscriptions ON'
-                : 'Subscriptions OFF'}
-          </button>
+            <span
+              className={`text-sm font-bold ${
+                subscriptionsEnabled ? 'text-[#0D4C3E]' : 'text-red-600'
+              }`}
+            >
+              {togglingSubscriptions
+                ? 'Saving…'
+                : subscriptionsEnabled
+                  ? 'Subscriptions ON'
+                  : 'Subscriptions OFF'}
+            </span>
+            <Switch
+              checked={subscriptionsEnabled}
+              onCheckedChange={() => void toggleSubscriptions()}
+              disabled={togglingSubscriptions || loading}
+            />
+          </div>
           <Button variant="outline" size="sm" className="gap-1" onClick={() => void load()}>
             <RefreshCw size={14} /> Refresh
           </Button>
@@ -550,7 +554,7 @@ export default function ManageSubscriptionPage() {
       {/* Disabled subscriptions banner */}
       {!subscriptionsEnabled && !loading && (
         <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex gap-3 mb-6">
-          <PowerOff size={18} className="text-red-500 shrink-0 mt-0.5" />
+          <X size={18} className="text-red-500 shrink-0 mt-0.5" />
           <div className="text-sm text-red-700">
             <p className="font-bold">Subscriptions are currently DISABLED</p>
             <p className="text-red-500 mt-1">

@@ -26,7 +26,7 @@ export async function sendEmail({
   to: string;
   subject: string;
   html: string;
-}) {
+}): Promise<{ messageId: string }> {
   const config = await getSmtpConfig();
   if (!config?.smtp_user || !config?.smtp_pass) {
     throw new Error('SMTP not configured. Please configure SMTP settings in the Admin panel.');
@@ -61,16 +61,28 @@ export async function sendEmail({
     );
   }
 
+  let result: { messageId: string } = { messageId: '' };
   try {
-    await transporter.sendMail({
+    // The "from" and "replyTo" MUST match the authenticated smtp_user so Gmail
+    // does not fail SPF/DKIM checks — which is the #1 cause of landing in spam.
+    const info = await transporter.sendMail({
       from: `"${config.smtp_from_name || 'Scoolam'}" <${config.smtp_user}>`,
+      replyTo: config.smtp_user,
       to,
       subject,
       html,
+      headers: {
+        'X-Mailer': 'Scoolam/1.0',
+        'X-Priority': '3',
+        'List-Unsubscribe': `<mailto:${config.smtp_user}?subject=unsubscribe>`,
+      },
     });
+    result = { messageId: (info as { messageId: string }).messageId ?? '' };
   } finally {
     transporter.close();
   }
+
+  return result;
 }
 
 export function buildOtpEmailHtml(otp: string, recipientEmail: string): string {

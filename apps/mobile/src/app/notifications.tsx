@@ -21,6 +21,7 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRequireAuth } from '@/utils/auth/useAuth';
 
 interface AppNotification {
   id: string;
@@ -54,6 +55,10 @@ function timeAgo(dateStr: string): string {
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  // Block unauthenticated access — shows the sign-in modal if not logged in
+  useRequireAuth();
+
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [clearedIds, setClearedIds] = useState<Set<string>>(new Set());

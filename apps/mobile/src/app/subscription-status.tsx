@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Crown, CheckCircle2, Lock, Zap, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import SubscriptionPaywall from '@/components/SubscriptionPaywall';
+import { useRequireAuth } from '@/utils/auth/useAuth';
 
 interface Plan {
   id: number;
@@ -17,6 +18,9 @@ interface Plan {
 export default function SubscriptionStatusScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  // Block unauthenticated access
+  useRequireAuth();
 
   const [isPremium, setIsPremium] = useState(false);
   const [plans, setPlans] = useState<Plan[]>([]);

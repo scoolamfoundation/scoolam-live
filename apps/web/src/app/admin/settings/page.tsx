@@ -255,9 +255,15 @@ export default function AdminSettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to: testEmailAddr }),
       });
-      const data = (await res.json()) as { error?: string };
-      if (res.ok) toast.success(`Test email sent to ${testEmailAddr}!`);
-      else toast.error(data.error ?? 'Failed to send test email');
+      const data = (await res.json()) as { error?: string; messageId?: string };
+      if (res.ok) {
+        toast.success(`Email accepted by SMTP ✅ — Check Spam/Junk if not in inbox`, {
+          description: data.messageId ? `Message ID: ${data.messageId}` : undefined,
+          duration: 8000,
+        });
+      } else {
+        toast.error(data.error ?? 'Failed to send test email', { duration: 8000 });
+      }
     } catch {
       toast.error('Failed to send test email');
     } finally {
@@ -613,9 +619,30 @@ export default function AdminSettingsPage() {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-gray-400 mt-2">
-                Save your SMTP settings first, then send a test to confirm it works.
-              </p>
+              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 space-y-1">
+                <p className="font-semibold">📬 Not receiving the email? Check these:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-amber-700">
+                  <li>
+                    <strong>Spam / Junk folder</strong> — Gmail often filters SMTP emails there
+                    first
+                  </li>
+                  <li>
+                    <strong>Wrong App Password</strong> — must be a 16-char Google App Password, not
+                    your login password
+                  </li>
+                  <li>
+                    <strong>2-Step Verification not enabled</strong> — App Passwords only work when
+                    2FA is ON
+                  </li>
+                  <li>
+                    <strong>Sending to the same Gmail</strong> — try a different email address to
+                    rule out self-delivery loop
+                  </li>
+                  <li>
+                    <strong>SMTP not saved yet</strong> — click "Save SMTP Settings" before testing
+                  </li>
+                </ul>
+              </div>
             </div>
           )}
         </div>

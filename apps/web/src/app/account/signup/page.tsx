@@ -1,3 +1,4 @@
+'use client';
 /**
  * ⚠ ANYTHING PLATFORM — DO NOT REWRITE THIS FILE ⚠
  *
@@ -144,7 +145,20 @@ function SignUpForm() {
 
         {error && (
           <div className="rounded-[10px] bg-red-50 border border-red-100 p-[10px] text-[13px] text-red-600">
-            {error}
+            {/already exist|already registered|email.*use/i.test(error) ? (
+              <span>
+                User already exists. Use{' '}
+                <a
+                  href="/account/signin"
+                  className="font-bold underline text-[#0D4C3E] hover:text-[#0a3d32] transition-colors"
+                >
+                  Sign in
+                </a>{' '}
+                option.
+              </span>
+            ) : (
+              error
+            )}
           </div>
         )}
 

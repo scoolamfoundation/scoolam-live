@@ -33,6 +33,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { Image } from 'expo-image';
+import { Toaster } from 'sonner-native';
 
 const SPLASH_TIMEOUT_MS = 3_000;
 
@@ -131,6 +132,7 @@ export default function RootLayout() {
             <Stack.Screen name="daily-quiz/[id]" />
           </Stack>
           <AuthModal />
+          <Toaster />
         </GestureHandlerRootView>
       </QueryClientProvider>
     </ErrorBoundary>

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, CheckCircle2, XCircle, Clock } from 'lucide-react-native';
 import ChallengeComplete from '@/components/ChallengeComplete';
+import { useRequireAuth } from '@/utils/auth/useAuth';
 
 interface Question {
   id: number;
@@ -36,6 +37,9 @@ export default function QuizScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Block unauthenticated access
+  useRequireAuth();
 
   const [phase, setPhase] = useState<Phase>('loading');
   const [meta, setMeta] = useState<TopicMeta | null>(null);

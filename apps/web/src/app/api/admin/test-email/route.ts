@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await sendEmail({
+    const { messageId } = await sendEmail({
       to,
       subject: '✅ Scoolam SMTP Test — Connection Successful',
       html: `
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       `.trim(),
     });
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, messageId });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to send email';
     console.error('[test-email]', err);

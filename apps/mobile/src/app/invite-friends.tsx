@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import KeyboardAvoidingAnimatedView from '@/components/KeyboardAvoidingAnimatedView';
+import { useRequireAuth } from '@/utils/auth/useAuth';
 
 interface ReferralData {
   code: string;
@@ -37,6 +38,9 @@ interface ReferralData {
 export default function InviteFriendsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  // Block unauthenticated access
+  useRequireAuth();
 
   const [data, setData] = useState<ReferralData | null>(null);
   const [loading, setLoading] = useState(true);

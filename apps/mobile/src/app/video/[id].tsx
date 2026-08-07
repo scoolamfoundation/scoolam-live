@@ -13,6 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Info, CheckSquare, Maximize2 } from 'lucide-react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import SubscriptionPaywall from '@/components/SubscriptionPaywall';
+import { useRequireAuth } from '@/utils/auth/useAuth';
 
 interface Topic {
   id: number;
@@ -311,6 +312,9 @@ export default function VideoPlayerScreen() {
   const [userIsPremium, setUserIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // Block unauthenticated access — shows the sign-in modal if not logged in
+  useRequireAuth();
 
   useEffect(() => {
     void (async () => {

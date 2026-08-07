@@ -226,7 +226,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Settings', href: '/admin/settings', icon: Settings },
     { label: 'Manage Subscription', href: '/admin/subscription', icon: Star },
     { label: 'Terms of Service', href: '/admin/terms', icon: ScrollText },
-    { label: 'Privacy Policy', href: '/admin/privacy', icon: Shield },
+    { label: 'Privacy Policy', href: '/admin/privacy-policy', icon: Shield },
   ];
 
   const isActive = (href: string) => {
