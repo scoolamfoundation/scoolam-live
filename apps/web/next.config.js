@@ -19,6 +19,7 @@ const nextConfig = {
   ],
   // Resolve leftover `@auth/create` imports to local shims (see src/__create/@auth/create).
   turbopack: {
+    root: path.join(__dirname, '..', '..'),
     resolveAlias: {
       '@auth/create/react': path.join(
         __dirname,
@@ -27,7 +28,7 @@ const nextConfig = {
       '@auth/create': path.join(__dirname, 'src/__create/@auth/create/index.ts'),
     },
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve = config.resolve ?? {};
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -37,6 +38,17 @@ const nextConfig = {
       ),
       '@auth/create': path.join(__dirname, 'src/__create/@auth/create/index.ts'),
     };
+    // better-auth instruments every DB call with OpenTelemetry; the dynamic
+    // `import("@opentelemetry/api")` resolves to a CJS namespace whose named
+    // exports are undefined under the Node server runtime, crashing auth. Alias
+    // it to a shim that re-exports the CommonJS build as ESM. Only on the Node
+    // server bundle — the edge runtime (middleware) can't use `require`.
+    if (isServer && config.name !== 'edge-server') {
+      config.resolve.alias['@opentelemetry/api'] = path.join(
+        __dirname,
+        'src/__create/opentelemetry-api-shim.ts'
+      );
+    }
     return config;
   },
   rewrites() {

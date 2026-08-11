@@ -22,6 +22,7 @@ import { createAuthMiddleware } from 'better-auth/api';
 import { verifyPassword } from 'better-auth/crypto';
 import { bearer } from 'better-auth/plugins';
 import ws from 'ws';
+import '@/lib/db-config';
 
 neonConfig.webSocketConstructor = ws;
 

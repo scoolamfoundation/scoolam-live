@@ -1,0 +1,35 @@
+# systemd unit that runs the Next.js app in production.
+#
+# Install:
+#   sudo cp deploy/scoolam-web.service /etc/systemd/system/scoolam-web.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now scoolam-web
+#
+# Logs:
+#   sudo journalctl -u scoolam-web -f
+
+[Unit]
+Description=Scoolam Next.js web app
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/home/deploy/scoolam-live/apps/web
+EnvironmentFile=/home/deploy/scoolam-live/apps/web/.env.production
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+# Build with the same webpack flag used in development — Turbopack fails on
+# this yarn PnP monorepo.
+ExecStart=/home/deploy/.local/bin/corepack sh yarn next start -p 3000
+
+Restart=on-failure
+RestartSec=5
+
+# Next.js can hold DB connections; give it a moment on stop.
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

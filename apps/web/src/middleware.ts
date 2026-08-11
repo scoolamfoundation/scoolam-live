@@ -33,8 +33,16 @@ const PUBLIC_PREFIXES = ['/account/', '/api/', '/_next/'];
 /**
  * Session-token cookie written by better-auth.
  * Must match `cookiePrefix: 'better-auth'` in /lib/auth.ts.
+ *
+ * better-auth prepends the `__Secure-` prefix to cookie names when the
+ * `secure: true` cookie attribute is set (which it is, for the iframe/mobile
+ * sameSite:'none' flow). On HTTPS hosts the actual cookie is therefore
+ * `__Secure-better-auth.session_token`; on plain-HTTP local dev it is
+ * `better-auth.session_token`. Check both so the middleware finds the session
+ * regardless of how the app is being served.
  */
 const SESSION_COOKIE = 'better-auth.session_token';
+const SECURE_SESSION_COOKIE = '__Secure-better-auth.session_token';
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
@@ -67,7 +75,9 @@ export function middleware(request: NextRequest) {
   // Presence means an active session exists; actual session validity and
   // admin-role check are enforced server-side by requireAdmin() / getSession()
   // inside each API route handler.
-  const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
+  const sessionToken =
+    request.cookies.get(SESSION_COOKIE)?.value ??
+    request.cookies.get(SECURE_SESSION_COOKIE)?.value;
 
   // Admin routes — redirect to /admin/login if no session
   if (pathname.startsWith('/admin')) {

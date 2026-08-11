@@ -1,0 +1,53 @@
+# Production database stack for scoolam.com on a VPS.
+#
+# Runs PostgreSQL 17 + the neon wsproxy. The Next.js app connects to Postgres
+# through @neondatabase/serverless (WebSocket → wsproxy → Postgres), which is
+# the transport lib/auth.ts and lib/db-config.ts expect. The app itself runs on
+# the host (Node 22), NOT in docker — only the database layer is containerized.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# The `pg` service is reachable as host `pg` on the `scoolam-net` network, so
+# NEON_WS_PROXY points at pg:5432 (see apps/web/.env.production.example).
+
+services:
+  pg:
+    image: postgres:17
+    container_name: pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-scoolam}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scoolam}
+      POSTGRES_DB: ${POSTGRES_DB:-scoolam}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./Scoolam-Db/production.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - scoolam-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-scoolam}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wsproxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    container_name: wsproxy
+    restart: unless-stopped
+    environment:
+      ALLOW_ADDR_REGEX: ".*"
+    networks:
+      - scoolam-net
+    ports:
+      - "127.0.0.1:8080:80"   # only reachable from localhost; the app talks to it directly
+    depends_on:
+      pg:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+
+networks:
+  scoolam-net:
+    driver: bridge
