@@ -4,8 +4,8 @@ import './global.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'Anything App',
-  description: 'Created with Anything',
+  title: 'Scoolam',
+  description: 'Scoolam — learning, reimagined.',
   icons: {
     icon: '/favicon.png',
   },
