@@ -9,14 +9,22 @@
 			"distribution": "internal",
 			"env": {
 				"SENTRY_DISABLE_AUTO_UPLOAD": "true",
-				"EXPO_USE_PRECOMPILED_MODULES": "0"
+				"EXPO_USE_PRECOMPILED_MODULES": "0",
+				"EXPO_PUBLIC_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_PROXY_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_HOST": "scoolam.cloud",
+				"EXPO_PUBLIC_PROJECT_GROUP_ID": "scoolam-production"
 			}
 		},
 		"preview": {
 			"distribution": "internal",
 			"env": {
 				"SENTRY_DISABLE_AUTO_UPLOAD": "true",
-				"EXPO_USE_PRECOMPILED_MODULES": "0"
+				"EXPO_USE_PRECOMPILED_MODULES": "0",
+				"EXPO_PUBLIC_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_PROXY_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_HOST": "scoolam.cloud",
+				"EXPO_PUBLIC_PROJECT_GROUP_ID": "scoolam-production"
 			}
 		},
 		"production": {
@@ -26,7 +34,11 @@
 			},
 			"env": {
 				"SENTRY_DISABLE_AUTO_UPLOAD": "true",
-				"EXPO_USE_PRECOMPILED_MODULES": "0"
+				"EXPO_USE_PRECOMPILED_MODULES": "0",
+				"EXPO_PUBLIC_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_PROXY_BASE_URL": "https://scoolam.cloud",
+				"EXPO_PUBLIC_HOST": "scoolam.cloud",
+				"EXPO_PUBLIC_PROJECT_GROUP_ID": "scoolam-production"
 			}
 		}
 	},

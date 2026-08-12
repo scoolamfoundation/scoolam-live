@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
-const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://www.scoolam.com';
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://scoolam.cloud';
 
 export default function PrivacyPolicyScreen() {
   const insets = useSafeAreaInsets();

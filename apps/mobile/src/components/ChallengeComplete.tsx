@@ -139,7 +139,7 @@ export default function ChallengeComplete({
   });
 
   const handleShare = async () => {
-    const baseUrl = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://www.scoolam.com';
+    const baseUrl = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://scoolam.cloud';
     const certUrl = `${baseUrl}/certificate?name=${encodeURIComponent(userName)}&title=${encodeURIComponent(title)}&score=${score}&total=${total}&pct=${pct}&medal=${medal}&date=${encodeURIComponent(dateStr)}&mode=${mode}`;
     try {
       await Share.share({
@@ -475,7 +475,7 @@ export default function ChallengeComplete({
                 }}
               >
                 <Text style={{ fontSize: 11, color: '#9CA3AF' }}>📅 {dateStr}</Text>
-                <Text style={{ fontSize: 11, color: '#9CA3AF' }}>scoolam.com</Text>
+                <Text style={{ fontSize: 11, color: '#9CA3AF' }}>scoolam.cloud</Text>
               </View>
             </View>
 

@@ -20,7 +20,7 @@ export default function CertificateViewScreen() {
   }>();
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://www.scoolam.com';
+  const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL ?? 'https://scoolam.cloud';
 
   const certUrl = `${BASE_URL}/certificate?name=${encodeURIComponent(params.name ?? '')}&title=${encodeURIComponent(params.title ?? '')}&score=${params.score ?? 0}&total=${params.total ?? 0}&pct=${params.pct ?? 0}&medal=${params.medal ?? 'participation'}&date=${encodeURIComponent(params.date ?? '')}&mode=${params.mode ?? 'topic'}`;
 
