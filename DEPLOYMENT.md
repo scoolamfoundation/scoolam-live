@@ -1,11 +1,11 @@
-# Deploying scoolam.com on a Hostinger VPS
+# Deploying scoolam.cloud on a Hostinger VPS
 
 This guide takes a fresh Linux VPS (only the OS installed) to a live
-**https://scoolam.com** serving the Next.js app, with Postgres, SSL, and
+**https://scoolam.cloud** serving the Next.js app, with Postgres, SSL, and
 auto-restart on boot.
 
 > All commands run as a non-root sudo user on the VPS unless prefixed with
-> `sudo`. Replace `scoolam.com` with your domain everywhere if different.
+> `sudo`. Replace `scoolam.cloud` with your domain everywhere if different.
 
 ---
 
@@ -29,14 +29,14 @@ we keep the same working setup as local dev.
 ## 1. Point the domain at the VPS
 
 1. In the Hostinger VPS panel, note your server's **public IP**.
-2. In your domain's DNS (wherever `scoolam.com` is managed), add:
+2. In your domain's DNS (wherever `scoolam.cloud` is managed), add:
 
    | Type | Name  | Value (your VPS IP) | TTL  |
    |------|-------|----------------------|------|
    | A    | `@`   | `203.0.113.10`       | 300  |
    | A    | `www` | `203.0.113.10`       | 300  |
 
-3. Wait for DNS to resolve (check with `dig +short scoolam.com` — it should
+3. Wait for DNS to resolve (check with `dig +short scoolam.cloud` — it should
    return your VPS IP) before you request the SSL certificate in step 7.
 
 ---
@@ -153,7 +153,7 @@ Fill in:
   `postgres://scoolam:YOUR_PASSWORD@localhost:5432/scoolam`
 - **`BETTER_AUTH_SECRET`** — generate one: `openssl rand -base64 32` and paste it.
 - Leave `AUTH_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS` as
-  `https://scoolam.com`.
+  `https://scoolam.cloud`.
 - `NEON_WS_PROXY` stays `localhost:8080/v1?address=pg:5432`.
 
 ---
@@ -203,26 +203,26 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 
 # Get the SSL certificate (DNS must already resolve to this VPS):
-sudo certbot --nginx -d scoolam.com -d www.scoolam.com
+sudo certbot --nginx -d scoolam.cloud -d www.scoolam.cloud
 # certbot rewrites the server blocks to listen on 443 + auto-renews.
 ```
 
-Open **https://scoolam.com** — the homepage should load.
+Open **https://scoolam.cloud** — the homepage should load.
 
 ---
 
 ## 11. Verify admin login
 
-1. Go to **https://scoolam.com/admin/login**.
+1. Go to **https://scoolam.cloud/admin/login**.
 2. Sign in with `admin@scoolam.local` / `admin123`.
-3. You should land on **https://scoolam.com/admin** (the dashboard).
+3. You should land on **https://scoolam.cloud/admin** (the dashboard).
 4. **Change the admin password** immediately via Settings.
 
 If `/admin` redirects back to `/admin/login` despite a correct password, see
 `AGENTS.md` → "Auth gotchas": the middleware checks the `__Secure-` cookie
 prefix, which requires the request to be over HTTPS (Nginx + certbot provide
 this). Make sure `X-Forwarded-Proto` reaches the app (the nginx config forwards
-it) and that `BETTER_AUTH_TRUSTED_ORIGINS` includes `https://scoolam.com`.
+it) and that `BETTER_AUTH_TRUSTED_ORIGINS` includes `https://scoolam.cloud`.
 
 ---
 
@@ -251,7 +251,7 @@ it) and that `BETTER_AUTH_TRUSTED_ORIGINS` includes `https://scoolam.com`.
   check `journalctl`. Common cause: wrong `DATABASE_URL` password or wsproxy
   not up (`docker ps`).
 - **`INVALID_ORIGIN` on signup/login** → `BETTER_AUTH_TRUSTED_ORIGINS` is
-  missing `https://scoolam.com`; edit `.env.production` and restart the service.
+  missing `https://scoolam.cloud`; edit `.env.production` and restart the service.
 - **Admin login loops back to login over HTTPS** → ensure Nginx forwards
   `X-Forwarded-Proto https` (the bundled config does) so better-auth's
   `secure: true` cookies attach correctly.
